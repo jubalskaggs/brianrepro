@@ -27,6 +27,11 @@ build: generate-timestamp ## Build all services
 	@echo "$(BLUE)Building Docker images with tag $(IMAGE_TAG)...$(NC)"
 	@echo "$(YELLOW)Using Docker context: builds$(NC)"
 	docker context use builds
+	@echo "$(BLUE)Restoring docker-compose.yml to latest tags for building...$(NC)"
+	@sed -i.bak 's|alpenglow411/ping:[0-9]*|alpenglow411/ping:latest|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/pong:[0-9]*|alpenglow411/pong:latest|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/caddy:[0-9]*|alpenglow411/caddy:latest|g' $(COMPOSE_FILE)
+	@rm -f $(COMPOSE_FILE).bak
 	docker compose -f $(COMPOSE_FILE) build
 	@echo "$(BLUE)Tagging images with timestamp $(IMAGE_TAG)...$(NC)"
 	docker tag $(REGISTRY)/ping:latest $(REGISTRY)/ping:$(IMAGE_TAG)
@@ -38,6 +43,11 @@ build-no-cache: generate-timestamp ## Build all services without cache
 	@echo "$(BLUE)Building Docker images (no cache) with tag $(IMAGE_TAG)...$(NC)"
 	@echo "$(YELLOW)Using Docker context: builds$(NC)"
 	docker context use builds
+	@echo "$(BLUE)Restoring docker-compose.yml to latest tags for building...$(NC)"
+	@sed -i.bak 's|alpenglow411/ping:[0-9]*|alpenglow411/ping:latest|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/pong:[0-9]*|alpenglow411/pong:latest|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/caddy:[0-9]*|alpenglow411/caddy:latest|g' $(COMPOSE_FILE)
+	@rm -f $(COMPOSE_FILE).bak
 	docker compose -f $(COMPOSE_FILE) build --no-cache
 	@echo "$(BLUE)Tagging images with timestamp $(IMAGE_TAG)...$(NC)"
 	docker tag $(REGISTRY)/ping:latest $(REGISTRY)/ping:$(IMAGE_TAG)
