@@ -238,11 +238,18 @@ push: ## Push images to registry
 	@echo "$(YELLOW)Using Docker context: builds$(NC)"
 	@echo "$(YELLOW)Note: Make sure you're logged into the registry first$(NC)"
 	docker context use builds
-	docker compose -f $(COMPOSE_FILE) push
+	@echo "$(BLUE)Creating temporary docker-compose.yml for pushing...$(NC)"
+	@cp $(COMPOSE_FILE) $(COMPOSE_FILE).push
+	@sed -i.bak 's|alpenglow411/ping:[0-9]*|alpenglow411/ping:latest|g' $(COMPOSE_FILE).push
+	@sed -i.bak 's|alpenglow411/pong:[0-9]*|alpenglow411/pong:latest|g' $(COMPOSE_FILE).push
+	@sed -i.bak 's|alpenglow411/caddy:[0-9]*|alpenglow411/caddy:latest|g' $(COMPOSE_FILE).push
+	@rm -f $(COMPOSE_FILE).push.bak
+	docker compose -f $(COMPOSE_FILE).push push
+	@rm -f $(COMPOSE_FILE).push
 	@echo "$(BLUE)Pushing timestamped images...$(NC)"
-	docker push $(REGISTRY)/ping:$(IMAGE_TAG)
-	docker push $(REGISTRY)/pong:$(IMAGE_TAG)
-	docker push $(REGISTRY)/caddy:$(IMAGE_TAG)
+	docker push $(REGISTRY)/ping:$(IMAGE_TAG) || echo "$(YELLOW)Warning: Could not push ping:$(IMAGE_TAG)$(NC)"
+	docker push $(REGISTRY)/pong:$(IMAGE_TAG) || echo "$(YELLOW)Warning: Could not push pong:$(IMAGE_TAG)$(NC)"
+	docker push $(REGISTRY)/caddy:$(IMAGE_TAG) || echo "$(YELLOW)Warning: Could not push caddy:$(IMAGE_TAG)$(NC)"
 	@echo "$(GREEN)Images pushed with tag $(IMAGE_TAG)!$(NC)"
 
 pull: ## Pull images from registry
