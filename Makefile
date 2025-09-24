@@ -27,12 +27,14 @@ build: generate-timestamp ## Build all services
 	@echo "$(BLUE)Building Docker images with tag $(IMAGE_TAG)...$(NC)"
 	@echo "$(YELLOW)Using Docker context: builds$(NC)"
 	docker context use builds
-	@echo "$(BLUE)Restoring docker-compose.yml to latest tags for building...$(NC)"
-	@sed -i.bak 's|alpenglow411/ping:[0-9]*|alpenglow411/ping:latest|g' $(COMPOSE_FILE)
-	@sed -i.bak 's|alpenglow411/pong:[0-9]*|alpenglow411/pong:latest|g' $(COMPOSE_FILE)
-	@sed -i.bak 's|alpenglow411/caddy:[0-9]*|alpenglow411/caddy:latest|g' $(COMPOSE_FILE)
-	@rm -f $(COMPOSE_FILE).bak
-	docker compose -f $(COMPOSE_FILE) build
+	@echo "$(BLUE)Creating temporary docker-compose.yml for building...$(NC)"
+	@cp $(COMPOSE_FILE) $(COMPOSE_FILE).build
+	@sed -i.bak 's|alpenglow411/ping:[0-9]*|alpenglow411/ping:latest|g' $(COMPOSE_FILE).build
+	@sed -i.bak 's|alpenglow411/pong:[0-9]*|alpenglow411/pong:latest|g' $(COMPOSE_FILE).build
+	@sed -i.bak 's|alpenglow411/caddy:[0-9]*|alpenglow411/caddy:latest|g' $(COMPOSE_FILE).build
+	@rm -f $(COMPOSE_FILE).build.bak
+	docker compose -f $(COMPOSE_FILE).build build
+	@rm -f $(COMPOSE_FILE).build
 	@echo "$(BLUE)Tagging images with timestamp $(IMAGE_TAG)...$(NC)"
 	docker tag $(REGISTRY)/ping:latest $(REGISTRY)/ping:$(IMAGE_TAG)
 	docker tag $(REGISTRY)/pong:latest $(REGISTRY)/pong:$(IMAGE_TAG)
@@ -43,12 +45,14 @@ build-no-cache: generate-timestamp ## Build all services without cache
 	@echo "$(BLUE)Building Docker images (no cache) with tag $(IMAGE_TAG)...$(NC)"
 	@echo "$(YELLOW)Using Docker context: builds$(NC)"
 	docker context use builds
-	@echo "$(BLUE)Restoring docker-compose.yml to latest tags for building...$(NC)"
-	@sed -i.bak 's|alpenglow411/ping:[0-9]*|alpenglow411/ping:latest|g' $(COMPOSE_FILE)
-	@sed -i.bak 's|alpenglow411/pong:[0-9]*|alpenglow411/pong:latest|g' $(COMPOSE_FILE)
-	@sed -i.bak 's|alpenglow411/caddy:[0-9]*|alpenglow411/caddy:latest|g' $(COMPOSE_FILE)
-	@rm -f $(COMPOSE_FILE).bak
-	docker compose -f $(COMPOSE_FILE) build --no-cache
+	@echo "$(BLUE)Creating temporary docker-compose.yml for building...$(NC)"
+	@cp $(COMPOSE_FILE) $(COMPOSE_FILE).build
+	@sed -i.bak 's|alpenglow411/ping:[0-9]*|alpenglow411/ping:latest|g' $(COMPOSE_FILE).build
+	@sed -i.bak 's|alpenglow411/pong:[0-9]*|alpenglow411/pong:latest|g' $(COMPOSE_FILE).build
+	@sed -i.bak 's|alpenglow411/caddy:[0-9]*|alpenglow411/caddy:latest|g' $(COMPOSE_FILE).build
+	@rm -f $(COMPOSE_FILE).build.bak
+	docker compose -f $(COMPOSE_FILE).build build --no-cache
+	@rm -f $(COMPOSE_FILE).build
 	@echo "$(BLUE)Tagging images with timestamp $(IMAGE_TAG)...$(NC)"
 	docker tag $(REGISTRY)/ping:latest $(REGISTRY)/ping:$(IMAGE_TAG)
 	docker tag $(REGISTRY)/pong:latest $(REGISTRY)/pong:$(IMAGE_TAG)
@@ -76,6 +80,9 @@ update-compose: ## Update docker-compose.yml with timestamped image tags
 	@sed -i.bak 's|alpenglow411/ping:latest|alpenglow411/ping:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
 	@sed -i.bak 's|alpenglow411/pong:latest|alpenglow411/pong:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
 	@sed -i.bak 's|alpenglow411/caddy:latest|alpenglow411/caddy:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/ping:[0-9]*|alpenglow411/ping:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/pong:[0-9]*|alpenglow411/pong:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/caddy:[0-9]*|alpenglow411/caddy:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
 	@rm -f $(COMPOSE_FILE).bak
 	@echo "$(GREEN)Docker-compose.yml updated with tag $(IMAGE_TAG)!$(NC)"
 

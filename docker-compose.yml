@@ -25,7 +25,7 @@ services:
 
   # Ping Service
   ping:
-    image: alpenglow411/ping:20250924120439
+    image: alpenglow411/ping:20250924134358
     build:
       context: ./ping
       dockerfile: Dockerfile
@@ -64,7 +64,7 @@ services:
 
   # Pong Service
   pong:
-    image: alpenglow411/pong:20250924120439
+    image: alpenglow411/pong:20250924134358
     build:
       context: ./pong
       dockerfile: Dockerfile
@@ -103,7 +103,7 @@ services:
 
   # Load Balancer / Reverse Proxy
   caddy:
-    image: alpenglow411/caddy:20250924120439
+    image: alpenglow411/caddy:20250924134358
     build:
       context: ./caddy
       dockerfile: Dockerfile
