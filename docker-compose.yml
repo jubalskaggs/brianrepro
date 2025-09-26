@@ -1,7 +1,10 @@
 services:
   # Message Queue Service - Apache Artemis
   reproartemis:
-    image: apache/activemq-artemis:2.34.0
+    image: alpenglow411/repro-artemis:20250926024138
+    build:
+      context: ./reproartemis
+      dockerfile: Dockerfile
     ports:
       - "40081:8161"
     deploy:
@@ -20,12 +23,14 @@ services:
       ARTEMIS_USERNAME: admin
       ARTEMIS_PASSWORD: password
       ANONYMOUS_LOGIN: "true"
+      GRAYLOG_HOST: reprograylog
+      GRAYLOG_PORT: 12201
     networks:
       - app-network
 
   # Ping Service
-  ping:
-    image: alpenglow411/ping:20250924134358
+  reproping:
+    image: alpenglow411/repro-ping:20250926024138
     build:
       context: ./ping
       dockerfile: Dockerfile
@@ -63,8 +68,8 @@ services:
       start_period: 30s
 
   # Pong Service
-  pong:
-    image: alpenglow411/pong:20250924134358
+  repropong:
+    image: alpenglow411/repro-pong:20250926024138
     build:
       context: ./pong
       dockerfile: Dockerfile
@@ -102,8 +107,8 @@ services:
       start_period: 30s
 
   # Load Balancer / Reverse Proxy
-  caddy:
-    image: alpenglow411/caddy:20250924134358
+  reprocaddy:
+    image: alpenglow411/repro-caddy:20250926024138
     build:
       context: ./caddy
       dockerfile: Dockerfile
@@ -119,13 +124,78 @@ services:
           memory: 128M
         reservations:
           memory: 64M
+      placement:
+        constraints:
+          - node.labels.caddy == true
     ports:
       - "40080:80"
+    environment:
+      - GRAYLOG_HOST=reprograylog
+      - GRAYLOG_PORT=12201
     networks:
       - app-network
     depends_on:
-      - ping
-      - pong
+      - reproping
+      - repropong
+
+  # Graylog Stack - MongoDB, OpenSearch, and Graylog
+  repromongodb:
+    image: "mongo:5"
+    # volumes:
+    #   - "/localfs/services/graylog/mongodb/data:/data/db"
+    restart: "on-failure"
+    environment:
+      GRAYLOG_DATANODE_PASSWORD_SECRET: "h8wOr4JK24gT6PjqyopWxRoVAj3kttBqCazP9hGb28GhKI1Rxokg553VJOwdx3LKt35r4NcA0tMWIkDJ6qqZnwFrT4jjJiVK"
+    deploy:
+      replicas: 1
+    networks:
+      - app-network
+
+  repropensearch:
+    image: "opensearchproject/opensearch:2.4.0"
+    environment:
+      - "OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "bootstrap.memory_lock=true"
+      - "discovery.type=single-node"
+      - "action.auto_create_index=false"
+      - "plugins.security.ssl.http.enabled=false"
+      - "plugins.security.disabled=true"
+    ulimits:
+      memlock:
+        hard: -1
+        soft: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    # volumes:
+    #   - "/localfs/services/graylog/opensearch/data:/usr/share/opensearch/data:rw"
+    restart: "on-failure"
+    deploy:
+      replicas: 1
+    networks:
+      - app-network
+
+  reprograylog:
+    image: graylog/graylog:6.3.2
+    entrypoint: "/docker-entrypoint.sh"
+    networks:
+      - app-network
+    ports:
+      - "40082:9000" # graylog web ui
+      - "12201:12201/tcp" # gelf tcp
+    environment:
+      GRAYLOG_IS_MASTER: "true"
+      GRAYLOG_NODE_ID_FILE: "/usr/share/graylog/data/config/node-id"
+      GRAYLOG_PASSWORD_SECRET: "h8wOr4JK24gT6PjqyopWxRoVAj3kttBqCazP9hGb28GhKI1Rxokg553VJOwdx3LKt35r4NcA0tMWIkDJ6qqZnwFrT4jjJiVK"
+      GRAYLOG_ROOT_USERNAME: "admin"
+      GRAYLOG_ROOT_PASSWORD_SHA2: "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+      GRAYLOG_HTTP_BIND_ADDRESS: 0.0.0.0:9000
+      # GRAYLOG_HTTP_EXTERNAL_URI: "https://stronk.run/graylog/"
+      # GRAYLOG_HTTP_PUBLISH_URI: "https://stronk.run/graylog/"
+      GRAYLOG_ELASTICSEARCH_HOSTS: "http://repropensearch:9200"
+      GRAYLOG_MONGODB_URI: "mongodb://repromongodb:27017/graylog"
+    deploy:
+      replicas: 1
 
 networks:
   app-network:

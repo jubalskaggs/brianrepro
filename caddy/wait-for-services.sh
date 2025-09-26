@@ -3,8 +3,8 @@
 # Wait for ping and pong services to be ready
 # This script waits for both services to be healthy
 
-PING_HOST=${PING_HOST:-ping}
-PONG_HOST=${PONG_HOST:-pong}
+PING_HOST=${PING_HOST:-reproping}
+PONG_HOST=${PONG_HOST:-repropong}
 SERVICE_PORT=8080
 MAX_ATTEMPTS=30
 ATTEMPT=1

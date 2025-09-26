@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- GELF TCP Appender -->
+    <appender name="GELF_TCP" class="biz.paluch.logging.gelf.logback.GelfLogbackAppender">
+        <host>tcp:${GRAYLOG_HOST:-graylog.example.com}</host>  <!-- Use env var or default -->
+        <port>${GRAYLOG_PORT:-12201}</port>
+        <facility>activemq-artemis</facility>
+        <extractStackTrace>true</extractStackTrace>
+        <filterStackTrace>true</filterStackTrace>
+        <includeFullMdc>true</includeFullMdc>
+        <includeLocation>false</includeLocation>  <!-- Set to true if you need file:line info -->
+        <maximumMessageSize>8192</maximumMessageSize>
+        <version>1.1</version>  <!-- GELF spec version -->
+    </appender>
+
+    <!-- Async wrapper to prevent blocking -->
+    <appender name="ASYNC_GELF" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="GELF_TCP" />
+        <queueSize>512</queueSize>
+        <neverBlock>true</neverBlock>
+    </appender>
+
+    <!-- Console appender (for Docker stdout/stderr) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Root logger: Send to both GELF and console -->
+    <root level="INFO">
+        <appender-ref ref="ASYNC_GELF" />
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <!-- Optional: Fine-tune Artemis-specific loggers -->
+    <logger name="org.apache.activemq.artemis" level="INFO" />
+</configuration>

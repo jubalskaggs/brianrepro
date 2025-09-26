@@ -29,16 +29,18 @@ build: generate-timestamp ## Build all services
 	docker context use builds
 	@echo "$(BLUE)Creating temporary docker-compose.yml for building...$(NC)"
 	@cp $(COMPOSE_FILE) $(COMPOSE_FILE).build
-	@sed -i.bak 's|alpenglow411/ping:[0-9]*|alpenglow411/ping:latest|g' $(COMPOSE_FILE).build
-	@sed -i.bak 's|alpenglow411/pong:[0-9]*|alpenglow411/pong:latest|g' $(COMPOSE_FILE).build
-	@sed -i.bak 's|alpenglow411/caddy:[0-9]*|alpenglow411/caddy:latest|g' $(COMPOSE_FILE).build
+	@sed -i.bak 's|alpenglow411/repro-ping:[0-9]*|alpenglow411/repro-ping:latest|g' $(COMPOSE_FILE).build
+	@sed -i.bak 's|alpenglow411/repro-pong:[0-9]*|alpenglow411/repro-pong:latest|g' $(COMPOSE_FILE).build
+	@sed -i.bak 's|alpenglow411/repro-caddy:[0-9]*|alpenglow411/repro-caddy:latest|g' $(COMPOSE_FILE).build
+	@sed -i.bak 's|alpenglow411/repro-artemis:[0-9]*|alpenglow411/repro-artemis:latest|g' $(COMPOSE_FILE).build
 	@rm -f $(COMPOSE_FILE).build.bak
 	docker compose -f $(COMPOSE_FILE).build build
 	@rm -f $(COMPOSE_FILE).build
 	@echo "$(BLUE)Tagging images with timestamp $(IMAGE_TAG)...$(NC)"
-	docker tag $(REGISTRY)/ping:latest $(REGISTRY)/ping:$(IMAGE_TAG)
-	docker tag $(REGISTRY)/pong:latest $(REGISTRY)/pong:$(IMAGE_TAG)
-	docker tag $(REGISTRY)/caddy:latest $(REGISTRY)/caddy:$(IMAGE_TAG)
+	docker tag $(REGISTRY)/repro-ping:latest $(REGISTRY)/repro-ping:$(IMAGE_TAG)
+	docker tag $(REGISTRY)/repro-pong:latest $(REGISTRY)/repro-pong:$(IMAGE_TAG)
+	docker tag $(REGISTRY)/repro-caddy:latest $(REGISTRY)/repro-caddy:$(IMAGE_TAG)
+	docker tag $(REGISTRY)/repro-artemis:latest $(REGISTRY)/repro-artemis:$(IMAGE_TAG)
 	@echo "$(GREEN)Build completed with tag $(IMAGE_TAG)!$(NC)"
 
 build-no-cache: generate-timestamp ## Build all services without cache
@@ -47,16 +49,18 @@ build-no-cache: generate-timestamp ## Build all services without cache
 	docker context use builds
 	@echo "$(BLUE)Creating temporary docker-compose.yml for building...$(NC)"
 	@cp $(COMPOSE_FILE) $(COMPOSE_FILE).build
-	@sed -i.bak 's|alpenglow411/ping:[0-9]*|alpenglow411/ping:latest|g' $(COMPOSE_FILE).build
-	@sed -i.bak 's|alpenglow411/pong:[0-9]*|alpenglow411/pong:latest|g' $(COMPOSE_FILE).build
-	@sed -i.bak 's|alpenglow411/caddy:[0-9]*|alpenglow411/caddy:latest|g' $(COMPOSE_FILE).build
+	@sed -i.bak 's|alpenglow411/repro-ping:[0-9]*|alpenglow411/repro-ping:latest|g' $(COMPOSE_FILE).build
+	@sed -i.bak 's|alpenglow411/repro-pong:[0-9]*|alpenglow411/repro-pong:latest|g' $(COMPOSE_FILE).build
+	@sed -i.bak 's|alpenglow411/repro-caddy:[0-9]*|alpenglow411/repro-caddy:latest|g' $(COMPOSE_FILE).build
+	@sed -i.bak 's|alpenglow411/repro-artemis:[0-9]*|alpenglow411/repro-artemis:latest|g' $(COMPOSE_FILE).build
 	@rm -f $(COMPOSE_FILE).build.bak
 	docker compose -f $(COMPOSE_FILE).build build --no-cache
 	@rm -f $(COMPOSE_FILE).build
 	@echo "$(BLUE)Tagging images with timestamp $(IMAGE_TAG)...$(NC)"
-	docker tag $(REGISTRY)/ping:latest $(REGISTRY)/ping:$(IMAGE_TAG)
-	docker tag $(REGISTRY)/pong:latest $(REGISTRY)/pong:$(IMAGE_TAG)
-	docker tag $(REGISTRY)/caddy:latest $(REGISTRY)/caddy:$(IMAGE_TAG)
+	docker tag $(REGISTRY)/repro-ping:latest $(REGISTRY)/repro-ping:$(IMAGE_TAG)
+	docker tag $(REGISTRY)/repro-pong:latest $(REGISTRY)/repro-pong:$(IMAGE_TAG)
+	docker tag $(REGISTRY)/repro-caddy:latest $(REGISTRY)/repro-caddy:$(IMAGE_TAG)
+	docker tag $(REGISTRY)/repro-artemis:latest $(REGISTRY)/repro-artemis:$(IMAGE_TAG)
 	@echo "$(GREEN)Build completed with tag $(IMAGE_TAG)!$(NC)"
 
 # Swarm management
@@ -77,12 +81,14 @@ leave-swarm: ## Leave Docker Swarm
 # Update compose file with timestamped tags
 update-compose: ## Update docker-compose.yml with timestamped image tags
 	@echo "$(BLUE)Updating docker-compose.yml with tag $(IMAGE_TAG)...$(NC)"
-	@sed -i.bak 's|alpenglow411/ping:latest|alpenglow411/ping:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
-	@sed -i.bak 's|alpenglow411/pong:latest|alpenglow411/pong:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
-	@sed -i.bak 's|alpenglow411/caddy:latest|alpenglow411/caddy:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
-	@sed -i.bak 's|alpenglow411/ping:[0-9]*|alpenglow411/ping:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
-	@sed -i.bak 's|alpenglow411/pong:[0-9]*|alpenglow411/pong:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
-	@sed -i.bak 's|alpenglow411/caddy:[0-9]*|alpenglow411/caddy:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/repro-ping:latest|alpenglow411/repro-ping:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/repro-pong:latest|alpenglow411/repro-pong:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/repro-caddy:latest|alpenglow411/repro-caddy:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/repro-artemis:latest|alpenglow411/repro-artemis:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/repro-ping:[0-9]*|alpenglow411/repro-ping:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/repro-pong:[0-9]*|alpenglow411/repro-pong:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/repro-caddy:[0-9]*|alpenglow411/repro-caddy:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/repro-artemis:[0-9]*|alpenglow411/repro-artemis:$(IMAGE_TAG)|g' $(COMPOSE_FILE)
 	@rm -f $(COMPOSE_FILE).bak
 	@echo "$(GREEN)Docker-compose.yml updated with tag $(IMAGE_TAG)!$(NC)"
 
@@ -122,47 +128,47 @@ logs: ## Show logs for all services
 	@echo "$(BLUE)Showing logs for all services...$(NC)"
 	@echo "$(YELLOW)Using Docker context: dev$(NC)"
 	docker context use dev
-	@docker service logs -f $(STACK_NAME)_ping || echo "$(YELLOW)Ping service not found$(NC)"
+	@docker service logs -f $(STACK_NAME)_reproping || echo "$(YELLOW)Ping service not found$(NC)"
 
 logs-ping: ## Show logs for ping service
 	@echo "$(BLUE)Showing logs for ping service...$(NC)"
 	@echo "$(YELLOW)Using Docker context: dev$(NC)"
 	docker context use dev
-	@docker service logs -f $(STACK_NAME)_ping
+	@docker service logs -f $(STACK_NAME)_reproping
 
 logs-pong: ## Show logs for pong service
 	@echo "$(BLUE)Showing logs for pong service...$(NC)"
 	@echo "$(YELLOW)Using Docker context: dev$(NC)"
 	docker context use dev
-	@docker service logs -f $(STACK_NAME)_pong
+	@docker service logs -f $(STACK_NAME)_repropong
 
 
 logs-caddy: ## Show logs for Caddy service
 	@echo "$(BLUE)Showing logs for Caddy service...$(NC)"
 	@echo "$(YELLOW)Using Docker context: dev$(NC)"
 	docker context use dev
-	@docker service logs -f $(STACK_NAME)_caddy
+	@docker service logs -f $(STACK_NAME)_reprocaddy
 
 # Scaling
 scale-ping: ## Scale ping service (usage: make scale-ping REPLICAS=3)
 	@echo "$(BLUE)Scaling ping service to $(REPLICAS) replicas...$(NC)"
 	@echo "$(YELLOW)Using Docker context: dev$(NC)"
 	docker context use dev
-	@docker service scale $(STACK_NAME)_ping=$(REPLICAS)
+	@docker service scale $(STACK_NAME)_reproping=$(REPLICAS)
 	@echo "$(GREEN)Ping service scaled!$(NC)"
 
 scale-pong: ## Scale pong service (usage: make scale-pong REPLICAS=3)
 	@echo "$(BLUE)Scaling pong service to $(REPLICAS) replicas...$(NC)"
 	@echo "$(YELLOW)Using Docker context: dev$(NC)"
 	docker context use dev
-	@docker service scale $(STACK_NAME)_pong=$(REPLICAS)
+	@docker service scale $(STACK_NAME)_repropong=$(REPLICAS)
 	@echo "$(GREEN)Pong service scaled!$(NC)"
 
 scale-caddy: ## Scale Caddy service (usage: make scale-caddy REPLICAS=2)
 	@echo "$(BLUE)Scaling Caddy service to $(REPLICAS) replicas...$(NC)"
 	@echo "$(YELLOW)Using Docker context: dev$(NC)"
 	docker context use dev
-	@docker service scale $(STACK_NAME)_caddy=$(REPLICAS)
+	@docker service scale $(STACK_NAME)_reprocaddy=$(REPLICAS)
 	@echo "$(GREEN)Caddy service scaled!$(NC)"
 
 # Service management
@@ -170,23 +176,23 @@ restart: ## Restart all services
 	@echo "$(BLUE)Restarting all services...$(NC)"
 	@echo "$(YELLOW)Using Docker context: dev$(NC)"
 	docker context use dev
-	@docker service update --force $(STACK_NAME)_ping || echo "$(YELLOW)Ping service not found$(NC)"
-	@docker service update --force $(STACK_NAME)_pong || echo "$(YELLOW)Pong service not found$(NC)"
-	@docker service update --force $(STACK_NAME)_caddy || echo "$(YELLOW)Caddy service not found$(NC)"
+	@docker service update --force $(STACK_NAME)_reproping || echo "$(YELLOW)Ping service not found$(NC)"
+	@docker service update --force $(STACK_NAME)_repropong || echo "$(YELLOW)Pong service not found$(NC)"
+	@docker service update --force $(STACK_NAME)_reprocaddy || echo "$(YELLOW)Caddy service not found$(NC)"
 	@echo "$(GREEN)Services restarted!$(NC)"
 
 restart-ping: ## Restart ping service
 	@echo "$(BLUE)Restarting ping service...$(NC)"
 	@echo "$(YELLOW)Using Docker context: dev$(NC)"
 	docker context use dev
-	@docker service update --force $(STACK_NAME)_ping
+	@docker service update --force $(STACK_NAME)_reproping
 	@echo "$(GREEN)Ping service restarted!$(NC)"
 
 restart-pong: ## Restart pong service
 	@echo "$(BLUE)Restarting pong service...$(NC)"
 	@echo "$(YELLOW)Using Docker context: dev$(NC)"
 	docker context use dev
-	@docker service update --force $(STACK_NAME)_pong
+	@docker service update --force $(STACK_NAME)_repropong
 	@echo "$(GREEN)Pong service restarted!$(NC)"
 
 # Health checks
@@ -240,16 +246,18 @@ push: ## Push images to registry
 	docker context use builds
 	@echo "$(BLUE)Creating temporary docker-compose.yml for pushing...$(NC)"
 	@cp $(COMPOSE_FILE) $(COMPOSE_FILE).push
-	@sed -i.bak 's|alpenglow411/ping:[0-9]*|alpenglow411/ping:latest|g' $(COMPOSE_FILE).push
-	@sed -i.bak 's|alpenglow411/pong:[0-9]*|alpenglow411/pong:latest|g' $(COMPOSE_FILE).push
-	@sed -i.bak 's|alpenglow411/caddy:[0-9]*|alpenglow411/caddy:latest|g' $(COMPOSE_FILE).push
+	@sed -i.bak 's|alpenglow411/repro-ping:[0-9]*|alpenglow411/repro-ping:latest|g' $(COMPOSE_FILE).push
+	@sed -i.bak 's|alpenglow411/repro-pong:[0-9]*|alpenglow411/repro-pong:latest|g' $(COMPOSE_FILE).push
+	@sed -i.bak 's|alpenglow411/repro-caddy:[0-9]*|alpenglow411/repro-caddy:latest|g' $(COMPOSE_FILE).push
+	@sed -i.bak 's|alpenglow411/repro-artemis:[0-9]*|alpenglow411/repro-artemis:latest|g' $(COMPOSE_FILE).push
 	@rm -f $(COMPOSE_FILE).push.bak
 	docker compose -f $(COMPOSE_FILE).push push
 	@rm -f $(COMPOSE_FILE).push
 	@echo "$(BLUE)Pushing timestamped images...$(NC)"
-	docker push $(REGISTRY)/ping:$(IMAGE_TAG) || echo "$(YELLOW)Warning: Could not push ping:$(IMAGE_TAG)$(NC)"
-	docker push $(REGISTRY)/pong:$(IMAGE_TAG) || echo "$(YELLOW)Warning: Could not push pong:$(IMAGE_TAG)$(NC)"
-	docker push $(REGISTRY)/caddy:$(IMAGE_TAG) || echo "$(YELLOW)Warning: Could not push caddy:$(IMAGE_TAG)$(NC)"
+	docker push $(REGISTRY)/repro-ping:$(IMAGE_TAG) || echo "$(YELLOW)Warning: Could not push repro-ping:$(IMAGE_TAG)$(NC)"
+	docker push $(REGISTRY)/repro-pong:$(IMAGE_TAG) || echo "$(YELLOW)Warning: Could not push repro-pong:$(IMAGE_TAG)$(NC)"
+	docker push $(REGISTRY)/repro-caddy:$(IMAGE_TAG) || echo "$(YELLOW)Warning: Could not push repro-caddy:$(IMAGE_TAG)$(NC)"
+	docker push $(REGISTRY)/repro-artemis:$(IMAGE_TAG) || echo "$(YELLOW)Warning: Could not push repro-artemis:$(IMAGE_TAG)$(NC)"
 	@echo "$(GREEN)Images pushed with tag $(IMAGE_TAG)!$(NC)"
 
 pull: ## Pull images from registry
@@ -270,9 +278,10 @@ login: ## Login to Docker Hub
 # Restore compose file to latest tags
 restore-compose: ## Restore docker-compose.yml to latest image tags
 	@echo "$(BLUE)Restoring docker-compose.yml to latest tags...$(NC)"
-	@sed -i.bak 's|alpenglow411/ping:[0-9]*|alpenglow411/ping:latest|g' $(COMPOSE_FILE)
-	@sed -i.bak 's|alpenglow411/pong:[0-9]*|alpenglow411/pong:latest|g' $(COMPOSE_FILE)
-	@sed -i.bak 's|alpenglow411/caddy:[0-9]*|alpenglow411/caddy:latest|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/repro-ping:[0-9]*|alpenglow411/repro-ping:latest|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/repro-pong:[0-9]*|alpenglow411/repro-pong:latest|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/repro-caddy:[0-9]*|alpenglow411/repro-caddy:latest|g' $(COMPOSE_FILE)
+	@sed -i.bak 's|alpenglow411/repro-artemis:[0-9]*|alpenglow411/repro-artemis:latest|g' $(COMPOSE_FILE)
 	@rm -f $(COMPOSE_FILE).bak
 	@echo "$(GREEN)Docker-compose.yml restored to latest tags!$(NC)"
 

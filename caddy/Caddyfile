@@ -1,55 +1,56 @@
 {
-    # Global options
-    auto_https off
-    log {
-        output stdout
-        format console
-    }
+	# Global options
+	log {
+		output stdout
+		format console
+	}
+	
+	# Disable admin to prevent cached configuration issues
+	admin off
 }
 
-# Main site with all routes
+# Simple HTTP configuration
 :80 {
-    # Health check endpoint
-    handle /health {
-        respond "healthy" 200
-    }
-    
-    # Ping service routes
-    handle /ping* {
-        reverse_proxy ping:8080 {
-            health_uri /actuator/health
-            health_interval 30s
-            health_timeout 5s
-            header_up Host {host}
-            header_up X-Real-IP {remote}
-            header_up X-Forwarded-For {remote}
-            header_up X-Forwarded-Proto {scheme}
-            header_up Connection {>Connection}
-            header_up Upgrade {>Upgrade}
-        }
-    }
-    
-    # Pong service routes  
-    handle /pong* {
-        reverse_proxy pong:8080 {
-            health_uri /actuator/health
-            health_interval 30s
-            health_timeout 5s
-            header_up Host {host}
-            header_up X-Real-IP {remote}
-            header_up X-Forwarded-For {remote}
-            header_up X-Forwarded-Proto {scheme}
-            header_up Connection {>Connection}
-            header_up Upgrade {>Upgrade}
-        }
-    }
-    
-    # Default route - redirect to ping service
-    handle {
-        reverse_proxy ping:8080 {
-            health_uri /actuator/health
-            health_interval 30s
-            health_timeout 5s
-        }
-    }
+	# HTTP access logging to file for Graylog forwarding
+	log {
+		output file /var/log/caddy/access.log {
+			roll_size 1MB
+			roll_keep 1
+			roll_keep_for 1h
+		}
+		format json
+	}
+	
+	# Ping service routes
+	handle /ping* {
+		reverse_proxy reproping:8080 {
+			health_uri /actuator/health
+			health_interval 30s
+			health_timeout 5s
+			header_up Host {host}
+			header_up X-Real-IP {remote}
+			header_up X-Forwarded-For {remote}
+			header_up X-Forwarded-Proto {scheme}
+		}
+	}
+	
+	# Pong service routes  
+	handle /pong* {
+		reverse_proxy repropong:8080 {
+			health_uri /actuator/health
+			health_interval 30s
+			health_timeout 5s
+			header_up Host {host}
+			header_up X-Real-IP {remote}
+			header_up X-Forwarded-For {remote}
+			header_up X-Forwarded-Proto {scheme}
+		}
+	}
+	
+	# Default route - serve index.html
+	handle / {
+		root * /srv
+		file_server
+		try_files {path} /index.html
+	}
 }
